@@ -105,7 +105,7 @@ npm install -g @midnight-ntwrk/compact
 Clone the repository:
 
 ```bash
-git clone https://github.com/<your-github-username>/private-community-voting-dapp.git
+git clone https://github.com/sammywasukundi/private-community-voting-dapp.git
 ```
 
 Move into the project directory:
@@ -117,7 +117,7 @@ cd private-community-voting-dapp/project
 Install dependencies:
 
 ```bash
-npm install
+yarn install
 ```
 
 ---
@@ -145,7 +145,7 @@ MIDNIGHT_PREVIEW_MNEMONIC=your twenty four word mnemonic here
 Compile the Compact contract:
 
 ```bash
-npm run compile
+yarn compile
 ```
 
 This command generates:
@@ -197,11 +197,11 @@ Insert your compilation screenshot here.
 Example:
 
 ```
-screenshots/compile.png
+screenshots/yarncompile.jpg
 ```
 
 ```markdown
-![Compilation](screenshots/compile.png)
+![Compilation](screenshots/yarncompile.jpg)
 ```
 
 ---
@@ -213,11 +213,11 @@ Insert your deployment screenshot here.
 Example:
 
 ```
-screenshots/deployment.png
+screenshots/deploy.jpg
 ```
 
 ```markdown
-![Deployment](screenshots/deployment.png)
+![Deployment](screenshots/deploy.jpg)
 ```
 
 ---

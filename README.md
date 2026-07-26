@@ -196,13 +196,7 @@ Insert your compilation screenshot here.
 
 Example:
 
-```
-screenshots/yarncompile.jpg
-```
-
-```markdown
 ![Compilation](screenshots/yarncompile.jpg)
-```
 
 ---
 
@@ -210,15 +204,7 @@ screenshots/yarncompile.jpg
 
 Insert your deployment screenshot here.
 
-Example:
-
-```
-screenshots/deploy.jpg
-```
-
-```markdown
 ![Deployment](screenshots/deploy.jpg)
-```
 
 ---
 

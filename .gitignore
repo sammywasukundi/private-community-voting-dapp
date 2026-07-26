@@ -1,4 +1,5 @@
 node_modules/
+midnight-level-db/
 
 .env.preview
 .env.preprod

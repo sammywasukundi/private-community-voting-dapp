@@ -1,0 +1,65 @@
+pragma language_version 0.23;
+
+import CompactStandardLibrary;
+
+// Private Community Voting DApp — Compact smart contract
+// Skeleton: enum, ledger declarations, constructor
+
+export enum PollStatus {
+  OPEN,
+  CLOSED
+}
+
+export struct PollResults {
+  total: Uint<64>;
+  yes: Uint<64>;
+  no: Uint<64>;
+}
+
+export ledger status: PollStatus;
+export ledger totalVotes: Counter;
+export ledger yesVotes: Counter;
+export ledger noVotes: Counter;
+
+// Commitments (hashes), never raw identities
+ledger voted: Set<Bytes<32>>;
+
+// Private witness: supplied off-chain by the TypeScript driver (witnesses.ts)
+witness voterIdentity(): Bytes<32>;
+
+constructor() {
+  status = PollStatus.OPEN;
+}
+
+// Derives a non-reversible commitment from the voter's private identity.
+// The raw identity itself is never disclosed.
+circuit voterCommitment(secretId: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>(
+    [pad(32, "midnight:privatevote:voter"), secretId]
+  );
+}
+
+export circuit vote(choice: Boolean): [] {
+  assert(status == PollStatus.OPEN, "not open");
+
+  const commitment = voterCommitment(voterIdentity());
+  assert(!voted.member(disclose(commitment)), "already voted");
+  voted.insert(disclose(commitment));
+
+  totalVotes.increment(1);
+  if (disclose(choice)) {
+    yesVotes.increment(1);
+  } else {
+    noVotes.increment(1);
+  }
+}
+
+export circuit closePoll(): [] {
+  assert(status == PollStatus.OPEN, "not open");
+  status = PollStatus.CLOSED;
+}
+
+export circuit getResults(): PollResults {
+  assert(status == PollStatus.CLOSED, "still open");
+  return PollResults { total: totalVotes, yes: yesVotes, no: noVotes };
+}

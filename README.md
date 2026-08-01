@@ -250,6 +250,59 @@ yarn proof:down
 
 ---
 
+## Frontend (Connect Wallet)
+
+A minimal React + Vite frontend lives in `frontend/`, using
+[`@midnight-ntwrk/dapp-connector-api`](https://docs.midnight.network/api-reference/dapp-connector)
+to connect to a real Midnight wallet extension (e.g. Lace — Midnight
+edition) in the browser, then deploy/join a poll, cast a private vote, close
+the poll, and watch the public counters update live.
+
+### Setup
+
+```bash
+yarn install
+yarn compile                 # if you haven't already
+yarn proof:up                # local proof server used by the frontend
+yarn dev                     # starts Vite on http://localhost:5173
+```
+
+`yarn dev` / `yarn build` automatically copy `contracts/managed/voting`
+into `frontend/public/zk/voting` first (`scripts/copy-zk-assets.mjs`), so the
+browser can fetch the ZK circuits over HTTP.
+
+Open `http://localhost:5173`, click **Connect Wallet** (requires a Midnight
+wallet extension installed and unlocked, connected to the same network as
+`VITE_MIDNIGHT_NETWORK`, default `preview`), then deploy a new poll or paste
+an existing contract address to join one.
+
+### Structure
+
+```
+frontend/
+├── index.html
+└── src/
+    ├── App.tsx              # wallet connection flow + wiring
+    ├── WalletCard.tsx        # connect/disconnect UI
+    ├── VotingPanel.tsx        # deploy/join, vote, close poll, live results
+    ├── selectWallet.ts        # reads window.midnight (DApp Connector API)
+    └── lib/
+        ├── browserWalletProvider.ts  # bridges ConnectedAPI → WalletProvider
+        ├── providers.ts               # browser MidnightProviders factory
+        └── contract.ts                 # compiled contract + fetch-based zk config
+```
+
+### Known limitation
+
+`lib/browserWalletProvider.ts` bridges the wallet's connector API
+(string-serialized transactions) to the typed `WalletProvider` interface
+`midnight-js-contracts` expects. This is the one piece that couldn't be
+exercised against a real wallet extension while building it — if voting
+fails after connecting a wallet, check that file first; it's flagged inline
+with what to look for.
+
+---
+
 # Technologies Used
 
 - Midnight Network

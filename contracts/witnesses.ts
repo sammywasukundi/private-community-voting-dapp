@@ -1,5 +1,5 @@
-import { Ledger } from "./managed/voting/contract/index.js";
-import { WitnessContext } from "@midnight-ntwrk/midnight-js-protocol/compact-runtime";
+import type { Ledger } from "./managed/voting/contract/index.js";
+import type { WitnessContext } from "@midnight-ntwrk/midnight-js-protocol/compact-runtime";
 
 export type VotingPrivateState = {
   readonly secretKey: Uint8Array;

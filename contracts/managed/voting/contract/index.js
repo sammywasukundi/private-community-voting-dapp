@@ -578,4 +578,3 @@ const _dummyContract = new Contract({ voterIdentity: (...args) => undefined });
 export const pureCircuits = {};
 export const contractReferenceLocations =
   { tag: 'publicLedgerArray', indices: { } };
-//# sourceMappingURL=index.js.map

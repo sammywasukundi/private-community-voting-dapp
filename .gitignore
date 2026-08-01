@@ -1,5 +1,7 @@
 node_modules/
 midnight-level-db/
+dist-frontend/
+frontend/public/zk/
 
 .env.preview
 .env.preprod

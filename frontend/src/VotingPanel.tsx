@@ -85,7 +85,9 @@ const VotingPanel: React.FC<Props> = ({ providers }) => {
       setContractAddress(address);
       setAddressInput(address);
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      console.error('Erreur complète (voir cause ci-dessous) :', e);
+      const causeSuffix = e instanceof Error && e.cause ? ` — cause : ${String(e.cause)}` : '';
+      setError(e instanceof Error ? `${e.message}${causeSuffix}` : String(e));
     } finally {
       setBusy(false);
     }
@@ -118,7 +120,9 @@ const VotingPanel: React.FC<Props> = ({ providers }) => {
       });
       await refreshResults();
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      console.error('Erreur complète (voir cause ci-dessous) :', e);
+      const causeSuffix = e instanceof Error && e.cause ? ` — cause : ${String(e.cause)}` : '';
+      setError(e instanceof Error ? `${e.message}${causeSuffix}` : String(e));
     } finally {
       setBusy(false);
     }
@@ -138,7 +142,9 @@ const VotingPanel: React.FC<Props> = ({ providers }) => {
       });
       await refreshResults();
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      console.error('Erreur complète (voir cause ci-dessous) :', e);
+      const causeSuffix = e instanceof Error && e.cause ? ` — cause : ${String(e.cause)}` : '';
+      setError(e instanceof Error ? `${e.message}${causeSuffix}` : String(e));
     } finally {
       setBusy(false);
     }

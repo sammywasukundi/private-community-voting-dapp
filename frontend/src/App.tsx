@@ -7,7 +7,6 @@ import VotingPanel from './VotingPanel';
 import { listWallets } from './selectWallet';
 import { BrowserWalletProvider } from './lib/browserWalletProvider';
 import { buildBrowserProviders } from './lib/providers';
-import { ZK_ASSETS_PATH } from './lib/contract';
 
 // 'undeployed' for a local devnet, 'preview' or 'preprod' for the public
 // test networks — must match what your wallet extension is connected to.
@@ -50,11 +49,10 @@ const App: React.FC = () => {
       setNetworkId(config.networkId as string);
 
       const wallet = await BrowserWalletProvider.connectFrom(connected);
-      const builtProviders = buildBrowserProviders(
-        wallet,
-        { indexer: config.indexerUri, indexerWS: config.indexerWsUri },
-        ZK_ASSETS_PATH,
-      );
+      const builtProviders = buildBrowserProviders(wallet, {
+        indexer: config.indexerUri,
+        indexerWS: config.indexerWsUri,
+      });
 
       setProviders(builtProviders);
       setWalletName(initial.name);

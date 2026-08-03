@@ -22,6 +22,10 @@ export default defineConfig({
     topLevelAwait(),
     // Same packages also assume a Node.js runtime environment (Buffer,
     // process, global) that a browser doesn't provide — this polyfills them.
+    // process/global are a hard requirement of @subsquid/scale-codec (used
+    // by the indexer client) — without them the app fails to even load
+    // ("process is not defined"). Confirmed NOT related to the separate
+    // ZKConfigurationReadError issue (that theory was tested and ruled out).
     nodePolyfills({
       globals: { Buffer: true, process: true, global: true },
     }),

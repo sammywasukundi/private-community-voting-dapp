@@ -1,9 +1,9 @@
 import { type MidnightProviders } from '@midnight-ntwrk/midnight-js-types';
 import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-public-data-provider';
 import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client-proof-provider';
-import { FetchZkConfigProvider } from '@midnight-ntwrk/midnight-js-fetch-zk-config-provider';
 import { levelPrivateStateProvider } from '@midnight-ntwrk/midnight-js-level-private-state-provider';
 import { BrowserWalletProvider } from './browserWalletProvider';
+import { zkConfigProvider } from './contract';
 
 export type NetworkEndpoints = {
   indexer: string;
@@ -21,13 +21,11 @@ export const LOCAL_PROOF_SERVER = 'http://127.0.0.1:6300';
 export function buildBrowserProviders(
   wallet: BrowserWalletProvider,
   endpoints: NetworkEndpoints,
-  zkAssetsBaseUrl: string,
 ): MidnightProviders {
-  const zkConfigProvider = new FetchZkConfigProvider(zkAssetsBaseUrl);
   return {
     privateStateProvider: levelPrivateStateProvider({
       privateStateStoreName: 'private-vote',
-      privateStoragePasswordProvider: () => 'private-vote-browser',
+      privateStoragePasswordProvider: () => 'PrivateVote-Browser-2026!',
       accountId: wallet.getCoinPublicKey(),
     }),
     publicDataProvider: indexerPublicDataProvider(endpoints.indexer, endpoints.indexerWS),

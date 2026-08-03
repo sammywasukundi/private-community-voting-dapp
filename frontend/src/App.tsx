@@ -2,17 +2,22 @@ import React, { useState } from 'react';
 import type { ConnectedAPI, InitialAPI } from '@midnight-ntwrk/dapp-connector-api';
 import type { MidnightProviders } from '@midnight-ntwrk/midnight-js-types';
 import { setNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
+import { Moon, Sun } from 'lucide-react';
 import WalletCard from './WalletCard';
 import VotingPanel from './VotingPanel';
 import { listWallets } from './selectWallet';
 import { BrowserWalletProvider } from './lib/browserWalletProvider';
 import { buildBrowserProviders } from './lib/providers';
+import { useTheme } from './theme';
+import { useToast } from './Toast';
 
 // 'undeployed' for a local devnet, 'preview' or 'preprod' for the public
 // test networks — must match what your wallet extension is connected to.
 const NETWORK_ID = (import.meta.env.VITE_MIDNIGHT_NETWORK as string | undefined) ?? 'preview';
 
 const App: React.FC = () => {
+  const [theme, toggleTheme] = useTheme();
+  const { push } = useToast();
   const [wallets, setWallets] = useState<InitialAPI[]>([]);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
@@ -59,9 +64,12 @@ const App: React.FC = () => {
       setWalletAddress(unshieldedAddress);
       setNetworkIdState(String(config.networkId));
       setIsConnected(true);
+      push('success', `Wallet ${initial.name} connecté`);
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      const message = e instanceof Error ? e.message : String(e);
+      setError(message);
       setIsConnected(false);
+      push('error', message);
     } finally {
       setIsConnecting(false);
     }
@@ -77,8 +85,20 @@ const App: React.FC = () => {
 
   return (
     <div className="app">
-      <h1>PrivateVote</h1>
-      <p className="subtitle">Vote communautaire privé sur Midnight</p>
+      <div className="app-header">
+        <div>
+          <h1>PrivateVote</h1>
+          <p className="subtitle">Vote communautaire privé sur Midnight</p>
+        </div>
+        <button
+          className="theme-toggle"
+          onClick={toggleTheme}
+          aria-label={theme === 'dark' ? 'Passer au thème clair' : 'Passer au thème sombre'}
+          title={theme === 'dark' ? 'Thème clair' : 'Thème sombre'}
+        >
+          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
+      </div>
 
       <WalletCard
         isConnected={isConnected}

@@ -6,6 +6,36 @@ This project demonstrates how Zero-Knowledge technology can be used to build a s
 
 ---
 
+# Project Title
+
+**PrivateVote** — Midnight Private Community Voting DApp
+
+---
+
+# Project Description
+
+PrivateVote is a decentralized, privacy-preserving voting application built on the Midnight Network. It lets any community, DAO, association, or organization run a poll where each member's vote is provably counted on-chain, while the identity behind each individual vote is never revealed — not to observers, not to the poll organizer, and not to the chain itself. Zero-Knowledge proofs guarantee that every recorded vote is legitimate (cast once, by an eligible participant) without exposing who cast it or how. A lightweight React frontend lets members connect a Midnight wallet, deploy or join a poll, vote, close the poll, and watch the public tally update live.
+
+---
+
+# Project Vision
+
+Most on-chain governance today forces a tradeoff between transparency and privacy: public blockchains make results verifiable, but they also make every individual vote traceable back to a wallet, discouraging honest participation on sensitive topics. PrivateVote's long-term vision is to make private-by-default governance the norm for digital communities — where members can vote their conscience on any proposal, board decision, or community measure without fear of social, professional, or political retaliation, while giving every participant cryptographic assurance that the final count is accurate and untampered. Midnight's Zero-Knowledge architecture makes this possible without relying on a trusted intermediary to keep votes secret.
+
+---
+
+# Key Features
+
+- **Private voting** — individual choices are never disclosed on-chain, only proven valid via Zero-Knowledge proofs
+- **Publicly verifiable results** — poll status and aggregate tallies (total, yes, no) are readable by anyone at any time
+- **Double-vote prevention** — a non-reversible commitment of each voter's identity is checked on-chain, without ever revealing the identity itself
+- **Real Connect Wallet flow** — browser frontend using `@midnight-ntwrk/dapp-connector-api` to connect to a real Midnight wallet extension
+- **Live results** — poll status and vote counts refresh automatically as the frontend polls the indexer
+- **Deploy or join** — start a brand-new poll from the UI, or join an existing one by pasting its contract address
+- **Full test coverage** — unit tests via a local simulator, plus end-to-end deployment tests against local, preview, and preprod networks
+
+---
+
 # Product Idea
 
 Private Community Voting DApp is a decentralized governance application designed for DAOs, communities, associations and organizations that require confidential voting.
@@ -222,6 +252,21 @@ All tests completed successfully on the Midnight Preview Network.
 
 ---
 
+# Mainnet / Testnet Contract Details
+
+>The address is printed by `yarn test:preview` (or by the frontend's "Déployer un nouveau poll" button) as `Contract deployed at: <address>`.
+
+- **Network:** Midnight Preview Testnet
+- **Contract Address:** `to be continued in next level`
+- **Deployment Date:** `to be continued in next level`
+- **Block Explorer:** [Midnight Preview Block Explorer](https://docs.midnight.network/relnotes/network) — search the contract address above
+
+**Screenshot:**
+
+![Deployed contract on the block explorer](screenshots/contract-explorer.png)
+
+---
+
 # Running Locally
 
 Compile:
@@ -300,6 +345,19 @@ frontend/
 exercised against a real wallet extension while building it — if voting
 fails after connecting a wallet, check that file first; it's flagged inline
 with what to look for.
+
+---
+
+# Future Scope
+
+- **Mainnet deployment** once Midnight's mainnet is available for production use
+- **Multi-poll registry** — a discovery contract/UI so members don't need to share contract addresses out-of-band
+- **Delegate / weighted voting** — allow votes to carry different weights (e.g. token-weighted or role-based) while keeping weights private
+- **Time-bound polls** — automatic closing after a deadline instead of a manual `closePoll` call
+- **Wallet-delegated proving** — move proof generation to the connected wallet instead of relying on a locally-run proof server, once the corresponding SDK integration is verified
+- **Result auditability tools** — exportable proofs/receipts so voters can independently verify their vote was counted, without revealing their choice
+- **Mobile wallet support** — extend the Connect Wallet flow to mobile Midnight wallets
+- **Multi-language UI** — translate the frontend beyond French/English for broader community adoption
 
 ---
 

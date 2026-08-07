@@ -47,6 +47,8 @@ const VotingPanel: React.FC<Props> = ({ providers }) => {
   const [contractAddress, setContractAddress] = useState<string | null>(null);
   const [results, setResults] = useState<Results | null>(null);
   const [action, setAction] = useState<Action>(null);
+  const [deployTimedOut, setDeployTimedOut] = useState(false);
+  const [pendingTxId, setPendingTxId] = useState<string | null>(null);
   const busy = action !== null;
 
   const privateStateId = contractAddress ? `voting-${contractAddress}` : null;
@@ -84,21 +86,62 @@ const VotingPanel: React.FC<Props> = ({ providers }) => {
       // state id (and its associated secret key) is created against a
       // temporary id and only matched to the final address afterwards.
       const secretKey = crypto.getRandomValues(new Uint8Array(32));
-      const deployed = await deployContract(providers, {
+      const deployPromise = deployContract(providers, {
         compiledContract: CompiledVotingContract,
         privateStateId: 'pending-deploy',
         initialPrivateState: createVotingPrivateState(secretKey),
       });
-      const address = deployed.deployTxData.public.contractAddress;
-      localStorage.setItem(STORAGE_PREFIX + address, btoa(String.fromCharCode(...secretKey)));
-      setContractAddress(address);
-      setAddressInput(address);
-      push('success', 'Poll déployé avec succès');
+
+      // If deploy takes longer than this, stop the spinner and show a
+      // user-facing warning while the operation continues in background.
+      const DEPLOY_TIMEOUT_MS = 30_000;
+      const timeoutPromise = new Promise<never>((_, reject) => setTimeout(() => reject(new Error('deploy-timeout')), DEPLOY_TIMEOUT_MS));
+
+      let deployed;
+      try {
+        deployed = await Promise.race([deployPromise, timeoutPromise]);
+        // finished before timeout — normal flow
+        const address = deployed.deployTxData.public.contractAddress;
+        localStorage.setItem(STORAGE_PREFIX + address, btoa(String.fromCharCode(...secretKey)));
+        setContractAddress(address);
+        setAddressInput(address);
+        push('success', 'Poll déployé avec succès');
+      } catch (e) {
+        if (e instanceof Error && e.message === 'deploy-timeout') {
+          // stop spinner and show warning; continue waiting for deployPromise
+          setAction(null);
+          setDeployTimedOut(true);
+          push('warning', "Le déploiement prend plus de 30s — vérifie ton wallet. Si la tx a été soumise, le contrat apparaîtra automatiquement une fois finalisé.");
+
+          // Continue handling the eventual deploy resolution in background
+          deployPromise.then((d) => {
+            try {
+              const address = d.deployTxData.public.contractAddress;
+              localStorage.setItem(STORAGE_PREFIX + address, btoa(String.fromCharCode(...secretKey)));
+              setContractAddress(address);
+              setAddressInput(address);
+              setDeployTimedOut(false);
+              push('success', 'Poll déployé avec succès (finalisé)');
+            } catch (inner) {
+              console.error('Error processing late deploy result', inner);
+            }
+          }).catch((err) => {
+            console.error('Delayed deploy failed', err);
+            push('error', errorMessage(err));
+            setDeployTimedOut(false);
+          });
+        } else {
+          // real error
+          throw e;
+        }
+      }
     } catch (e) {
       console.error('Erreur complète (voir cause ci-dessous) :', e);
       push('error', errorMessage(e));
     } finally {
-      setAction(null);
+      // If we timed out above we already cleared the action; in other
+      // cases ensure spinner is cleared.
+      if (!deployTimedOut) setAction(null);
     }
   };
 
@@ -212,10 +255,42 @@ const VotingPanel: React.FC<Props> = ({ providers }) => {
           <LogIn size={16} />
           Rejoindre
         </button>
-        <button className="secondary" onClick={handleDeploy} disabled={busy}>
-          {action === 'deploy' ? <Loader2 size={16} className="spin" /> : <Rocket size={16} />}
-          Déployer un nouveau poll
-        </button>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button className="secondary" onClick={handleDeploy} disabled={busy}>
+            {action === 'deploy' ? <Loader2 size={16} className="spin" /> : <Rocket size={16} />}
+            Déployer un nouveau poll
+          </button>
+          {deployTimedOut && (
+            <div style={{ color: 'var(--warning)', fontSize: 13, display: 'flex', gap: 8, alignItems: 'center' }}>
+              <span>Attente prolongée — vérifie ton wallet.</span>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button
+                  className="ghost"
+                  onClick={() => {
+                    setDeployTimedOut(false);
+                    push('info', "Arrêt de l'attente. Si la tx a été soumise, l'adresse se complétera automatiquement.");
+                  }}
+                >
+                  Stop
+                </button>
+                <button
+                  className="ghost"
+                  onClick={async () => {
+                    const tx = sessionStorage.getItem('midnight:lastSubmittedTxId');
+                    if (tx) {
+                      await navigator.clipboard.writeText(tx);
+                      push('info', "Tx id copié");
+                    } else {
+                      push('error', "Tx id non disponible");
+                    }
+                  }}
+                >
+                  Copier tx id
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {contractAddress && (

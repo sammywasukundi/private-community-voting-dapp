@@ -8,6 +8,8 @@ import type {
   EncPublicKey,
   FinalizedTransaction,
 } from '@midnight-ntwrk/midnight-js-protocol/ledger';
+import { Transaction } from '@midnight-ntwrk/midnight-js-protocol/ledger';
+import { fromHex, toHex } from '@midnight-ntwrk/midnight-js-utils';
 import type { ConnectedAPI } from '@midnight-ntwrk/dapp-connector-api';
 
 /**
@@ -55,19 +57,48 @@ export class BrowserWalletProvider implements WalletProvider, MidnightProvider {
   }
 
   async balanceTx(tx: UnboundTransaction): Promise<FinalizedTransaction> {
-    const serialized = (tx as unknown as { serialize(): string }).serialize();
-    const { tx: balanced } = await this.api.balanceUnsealedTransaction(serialized);
-    // The wallet returns the balanced + signed + proven transaction as a
-    // string; midnight-js-contracts expects a FinalizedTransaction object
-    // back from balanceTx. Depending on your installed SDK version you may
-    // need to deserialize it explicitly, e.g.:
-    //   Transaction.deserialize(balanced, NetworkId.currentNetworkId())
+    console.log('[DEBUG] balanceTx called. serializing tx and calling wallet');
+    const serializedHex = toHex((tx as unknown as { serialize(): Uint8Array }).serialize());
+    console.log('[DEBUG] balanceTx serializedHex (first 200 chars):', String(serializedHex).slice(0, 200));
+    console.log('[DEBUG] calling api.balanceUnsealedTransaction...');
+    const result = await this.api.balanceUnsealedTransaction(serializedHex, {});
+    console.log('[DEBUG] balanceUnsealedTransaction returned:', result);
+    const { tx: balancedHex } = result;
+    const balanced = Transaction.deserialize('signature', 'proof', 'binding', fromHex(balancedHex));
     return balanced as unknown as FinalizedTransaction;
   }
 
   async submitTx(tx: FinalizedTransaction): Promise<string> {
-    const serialized = (tx as unknown as { serialize(): string }).serialize();
-    await this.api.submitTransaction(serialized);
-    return serialized;
+    console.log('[DEBUG] submitTx called. serializing tx and calling wallet');
+    const serializedHex = toHex((tx as unknown as { serialize(): Uint8Array }).serialize());
+    console.log('[DEBUG] submitTx serializedHex (first 200 chars):', String(serializedHex).slice(0, 200));
+    console.log('[DEBUG] calling api.submitTransaction...');
+    // The connector may or may not return a tx hash; spec says void. We await
+    // the call and return the serialized hex for downstream callers that
+    // expect a string identifier. Prefer returning the transaction id if we
+    // can extract it from the `tx` object (common pattern in examples).
+    await this.api.submitTransaction(serializedHex);
+    try {
+      // many Transaction implementations expose `identifiers()` returning
+      // an array with the hex tx hash as the first element.
+      const ids = (tx as any)?.identifiers?.();
+      if (Array.isArray(ids) && ids.length > 0 && typeof ids[0] === 'string') {
+        try {
+          // store for UI inspection during long deploys
+          sessionStorage.setItem('midnight:lastSubmittedTxId', ids[0]);
+        } catch (err) {
+          /* ignore */
+        }
+        return ids[0];
+      }
+    } catch (err) {
+      // fallthrough to returning serialized hex
+    }
+    try {
+      sessionStorage.setItem('midnight:lastSubmittedTxId', serializedHex);
+    } catch (err) {
+      /* ignore */
+    }
+    return serializedHex;
   }
 }

@@ -7,4 +7,7 @@ export interface WalletCardProps {
   error: string | null;
   onConnect: () => void;
   onDisconnect: () => void;
+  nightBalance: bigint | null;
+  isRefreshingBalance: boolean;
+  onRefreshBalance: () => void;
 }

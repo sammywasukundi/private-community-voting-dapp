@@ -33,6 +33,23 @@ const App: React.FC = () => {
   const [providers, setProviders] = useState<MidnightProviders | null>(null);
   const [tab, setTab] = useState<Tab>('home');
   const [requestedAddress, setRequestedAddress] = useState<string | null>(null);
+  const [connectedApi, setConnectedApi] = useState<ConnectedAPI | null>(null);
+  const [nightBalance, setNightBalance] = useState<bigint | null>(null);
+  const [isRefreshingBalance, setIsRefreshingBalance] = useState(false);
+
+  const refreshBalance = async (api: ConnectedAPI) => {
+    setIsRefreshingBalance(true);
+    try {
+      const balances = await api.getUnshieldedBalances();
+      const total = Object.values(balances).reduce((sum, v) => sum + v, 0n);
+      setNightBalance(total);
+    } catch (e) {
+      // Balance display is a nice-to-have — never block the voting flow on it.
+      console.warn('Could not fetch wallet balance', e);
+    } finally {
+      setIsRefreshingBalance(false);
+    }
+  };
 
   const handleConnect = async () => {
     setError(null);
@@ -58,6 +75,21 @@ const App: React.FC = () => {
       const config = await connected.getConfiguration();
       setNetworkId(config.networkId as string);
 
+      // Lets the wallet know upfront which methods this DApp intends to
+      // use, so it can request the relevant permissions once instead of
+      // prompting mid-flow (see WalletConnectedAPI.hintUsage in the
+      // connector spec).
+      try {
+        await connected.hintUsage([
+          'getUnshieldedBalances',
+          'balanceUnsealedTransaction',
+          'submitTransaction',
+          'getConnectionStatus',
+        ]);
+      } catch {
+        // optional — some wallets may not implement hinting yet
+      }
+
       const wallet = await BrowserWalletProvider.connectFrom(connected);
       const builtProviders = buildBrowserProviders(wallet, {
         indexer: config.indexerUri,
@@ -65,11 +97,13 @@ const App: React.FC = () => {
       });
 
       setProviders(builtProviders);
+      setConnectedApi(connected);
       setWalletName(initial.name);
       setWalletAddress(unshieldedAddress);
       setNetworkIdState(String(config.networkId));
       setIsConnected(true);
       push('success', `Wallet ${initial.name} connecté`);
+      refreshBalance(connected);
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
       setError(message);
@@ -86,6 +120,8 @@ const App: React.FC = () => {
     setWalletName(null);
     setNetworkIdState(null);
     setProviders(null);
+    setConnectedApi(null);
+    setNightBalance(null);
   };
 
   const openInPoll = (address: string) => {
@@ -144,6 +180,7 @@ const App: React.FC = () => {
         </button>
       </nav>
 
+      <div className="tab-content" key={tab}>
       {tab === 'home' ? (
         <>
           <WalletCard
@@ -155,6 +192,9 @@ const App: React.FC = () => {
             error={error}
             onConnect={handleConnect}
             onDisconnect={handleDisconnect}
+            nightBalance={nightBalance}
+            isRefreshingBalance={isRefreshingBalance}
+            onRefreshBalance={() => connectedApi && refreshBalance(connectedApi)}
           />
 
           <VotingPanel providers={providers} requestedAddress={requestedAddress} />
@@ -162,6 +202,7 @@ const App: React.FC = () => {
       ) : (
         <HistoryPanel providers={providers} onOpenInPoll={openInPoll} />
       )}
+      </div>
     </div>
   );
 };

@@ -1,11 +1,20 @@
 import React from 'react';
-import { Wallet, LogOut, Loader2, AlertCircle, Copy } from 'lucide-react';
+import { Wallet, LogOut, Loader2, AlertCircle, Copy, RefreshCw, Coins } from 'lucide-react';
 import type { WalletCardProps } from './types';
 import { useI18n } from './i18n';
 import { useToast } from './Toast';
 
 const shorten = (addr: string) =>
   addr.length > 24 ? `${addr.slice(0, 14)}…${addr.slice(-8)}` : addr;
+
+// Night uses 6 decimals on Midnight — shown as a friendly decimal instead
+// of a raw atomic bigint.
+const formatNight = (atomic: bigint): string => {
+  const whole = atomic / 1_000_000n;
+  const frac = atomic % 1_000_000n;
+  const fracStr = frac.toString().padStart(6, '0').slice(0, 2);
+  return `${whole.toLocaleString()}.${fracStr}`;
+};
 
 const WalletCard: React.FC<WalletCardProps> = ({
   isConnected,
@@ -16,6 +25,9 @@ const WalletCard: React.FC<WalletCardProps> = ({
   error,
   onConnect,
   onDisconnect,
+  nightBalance,
+  isRefreshingBalance,
+  onRefreshBalance,
 }) => {
   const { t } = useI18n();
   const { push } = useToast();
@@ -62,6 +74,28 @@ const WalletCard: React.FC<WalletCardProps> = ({
         </div>
       ) : (
         <p className="empty-hint">{t('wallet.hint')}</p>
+      )}
+
+      {isConnected && (
+        <div className="balance-row">
+          <span className="balance-label">
+            <Coins size={14} />
+            {t('wallet.balance')}
+          </span>
+          <span className="balance-value" key={nightBalance?.toString() ?? 'none'}>
+            {nightBalance !== null ? formatNight(nightBalance) : '—'}
+          </span>
+          <button
+            className="ghost"
+            onClick={onRefreshBalance}
+            disabled={isRefreshingBalance}
+            aria-label={t('wallet.refreshBalance')}
+            title={t('wallet.refreshBalance')}
+            style={{ minWidth: 32, padding: 6 }}
+          >
+            <RefreshCw size={14} className={isRefreshingBalance ? 'spin' : undefined} />
+          </button>
+        </div>
       )}
 
       <div className="row">

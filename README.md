@@ -4,6 +4,9 @@ A privacy-preserving voting application built on the **Midnight Network** using 
 
 This project demonstrates how Zero-Knowledge technology can be used to build a secure community voting system where every member can vote privately while keeping the final result publicly verifiable.
 
+**Live demo:** `TODO — add the deployed Vercel/Netlify URL here once available`
+**Demo video:** https://youtu.be/YlRGxseZsG8
+
 ---
 
 # Project Title
@@ -28,10 +31,12 @@ Most on-chain governance today forces a tradeoff between transparency and privac
 
 - **Private voting** — individual choices are never disclosed on-chain, only proven valid via Zero-Knowledge proofs
 - **Publicly verifiable results** — poll status and aggregate tallies (total, yes, no) are readable by anyone at any time
-- **Double-vote prevention** — a non-reversible commitment of each voter's identity is checked on-chain, without ever revealing the identity itself
-- **Real Connect Wallet flow** — browser frontend using `@midnight-ntwrk/dapp-connector-api` to connect to a real Midnight wallet extension
-- **Live results** — poll status and vote counts refresh automatically as the frontend polls the indexer
+- **Double-vote prevention, handled gracefully in the UI** — a non-reversible commitment of each voter's identity is checked on-chain, without ever revealing the identity itself; the frontend recognizes a repeat-vote attempt and shows a calm explanation instead of a raw transaction error
+- **Real Connect Wallet flow** — browser frontend using `@midnight-ntwrk/dapp-connector-api` to connect to a real Midnight wallet extension, including balance display and a copy-address action
+- **Live results** — poll status and vote counts refresh automatically as the frontend polls the indexer, with a subtle animation whenever a figure changes
 - **Deploy or join** — start a brand-new poll from the UI, or join an existing one by pasting its contract address
+- **Privacy-preserving poll history** — a dedicated tab lists every poll this browser deployed or joined, showing only aggregate results (never a voter identity — see Privacy Statement below)
+- **French / English UI** — a language switcher in the header, translating the whole interface
 - **Full test coverage** — unit tests via a local simulator, plus end-to-end deployment tests against local, preview, and preprod networks
 
 ---
@@ -55,31 +60,33 @@ Each participant can cast a vote without revealing their identity or vote choice
 
 ---
 
-# Public State vs Private Witness
+# Privacy Statement
 
-## Public State
+This section documents, in one place, exactly what PrivateVote reveals and what it never reveals — on-chain and in the UI.
 
-The following information is stored on-chain and is visible to everyone:
+## What is public (on-chain)
 
-- Poll status (OPEN / CLOSED)
-- Total number of votes
-- Number of YES votes
-- Number of NO votes
+Anyone can read the following at any time, directly from the contract's ledger state, with no special access:
 
-This information allows anyone to verify the final voting result.
+- Poll status (`OPEN` / `CLOSED`)
+- Total number of votes cast
+- Number of `YES` votes
+- Number of `NO` votes
 
-## Private Witness
+This is enough for anyone to independently verify the final result without trusting the poll organizer.
 
-Private information never appears on-chain.
+## What is private (never on-chain, never in the UI)
 
-The voter's identity is provided through a witness function and is only used during Zero-Knowledge proof generation.
+- **Voter identity** — a voter's identity is only ever used locally, inside a witness function, to generate a Zero-Knowledge proof. The proof convinces the contract "an eligible, not-yet-voted identity cast this vote" without transmitting or storing that identity anywhere. Only a one-way commitment hash of it is ever recorded, to block a second vote from the same identity — the hash cannot be reversed to recover who voted.
+- **Individual vote choice** — the contract only ever increments aggregate counters (`totalVotes`, `yesVotes`, `noVotes`); no structure anywhere maps a specific vote to a specific voter.
+- **Poll history (frontend, local only)** — the History tab reads live aggregate results the same way anyone else can (`queryContractState`), and locally remembers only `{contract address, role: deployed|joined, timestamp}` in this browser's `localStorage`. It never records a choice or an identity, and none of it is shared with anyone else — it's a personal shortcut list, not a source of truth.
 
-The blockchain verifies the proof without revealing:
+## What this guarantees, and what it doesn't
 
-- who voted
-- how they voted
-
-This guarantees complete voter privacy.
+- ✅ No one — not other voters, not the poll organizer, not someone reading the chain — can link a vote to a person.
+- ✅ Anyone can verify the tally is internally consistent (`yesVotes + noVotes == totalVotes`) without trusting the organizer.
+- ✅ A given identity cannot vote twice; the commitment check happens on-chain regardless of what the frontend does.
+- ⚠️ This does not anonymize network-level metadata (e.g. IP address, wallet funding history) — that is outside the scope of the contract and would require additional infrastructure (proxies, mixnets) to address.
 
 ---
 
@@ -327,15 +334,28 @@ an existing contract address to join one.
 frontend/
 ├── index.html
 └── src/
-    ├── App.tsx              # wallet connection flow + wiring
-    ├── WalletCard.tsx        # connect/disconnect UI
-    ├── VotingPanel.tsx        # deploy/join, vote, close poll, live results
-    ├── selectWallet.ts        # reads window.midnight (DApp Connector API)
+    ├── App.tsx                    # wallet connection flow, tab nav, language switch
+    ├── WalletCard.tsx              # connect/disconnect UI, balance, copy address
+    ├── VotingPanel.tsx              # deploy/join, vote, close poll, live results
+    ├── HistoryPanel.tsx              # privacy-preserving list of past polls
+    ├── i18n.tsx                       # French/English provider + dictionary
+    ├── Toast.tsx                       # success/error/info/warning notifications
+    ├── selectWallet.ts                  # reads window.midnight (DApp Connector API)
     └── lib/
         ├── browserWalletProvider.ts  # bridges ConnectedAPI → WalletProvider
         ├── providers.ts               # browser MidnightProviders factory
-        └── contract.ts                 # compiled contract + fetch-based zk config
+        ├── contract.ts                 # compiled contract + fetch-based zk config
+        ├── pollHistory.ts               # local record of deployed/joined polls
+        └── voteGuard.ts                  # local "already voted" flag for the UI
 ```
+
+### Deploying the frontend
+
+A `netlify.toml` is included at the repo root (`command = "yarn build"`,
+`publish = "dist-frontend"`, `NODE_VERSION = "22"`). Import the repo on
+Netlify or Vercel and it should build with no extra configuration — the
+deployed app is a static SPA that talks to the user's own browser wallet
+and the public Preview indexer, so no server-side secrets are required.
 
 ### Known limitation
 
@@ -357,7 +377,7 @@ with what to look for.
 - **Wallet-delegated proving** — move proof generation to the connected wallet instead of relying on a locally-run proof server, once the corresponding SDK integration is verified
 - **Result auditability tools** — exportable proofs/receipts so voters can independently verify their vote was counted, without revealing their choice
 - **Mobile wallet support** — extend the Connect Wallet flow to mobile Midnight wallets
-- **Multi-language UI** — translate the frontend beyond French/English for broader community adoption
+- **More languages** — the UI is now translatable via `i18n.tsx`; extending beyond French/English is now just a matter of adding another dictionary entry
 
 ---
 

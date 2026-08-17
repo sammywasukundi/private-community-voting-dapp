@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useRef, useState } from 'react';
-import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
+import { CheckCircle2, AlertCircle, AlertTriangle, Info, X } from 'lucide-react';
 
-type ToastKind = 'success' | 'error' | 'info';
+type ToastKind = 'success' | 'error' | 'info' | 'warning';
 
 type Toast = {
   id: number;
@@ -19,6 +19,7 @@ const ICONS: Record<ToastKind, React.ReactNode> = {
   success: <CheckCircle2 size={18} />,
   error: <AlertCircle size={18} />,
   info: <Info size={18} />,
+  warning: <AlertTriangle size={18} />,
 };
 
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

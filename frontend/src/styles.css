@@ -289,6 +289,43 @@ body {
   background: currentColor;
 }
 
+.status-pill.connected .dot {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+/* ============================================================
+   Balance row
+   ============================================================ */
+.balance-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-input);
+  animation: fadeIn var(--duration-base) var(--ease-out);
+}
+
+.balance-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: var(--font-caption);
+  color: var(--color-text-secondary);
+}
+
+.balance-value {
+  flex: 1;
+  text-align: right;
+  font: var(--font-small);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+  animation: scaleIn var(--duration-fast) var(--ease-out);
+}
+
 /* ============================================================
    Wallet info block
    ============================================================ */
@@ -421,6 +458,7 @@ button.yes {
 }
 button.yes:hover:not(:disabled) {
   filter: brightness(1.08);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-success) 25%, transparent);
 }
 
 button.no {
@@ -429,6 +467,7 @@ button.no {
 }
 button.no:hover:not(:disabled) {
   filter: brightness(1.08);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-danger) 25%, transparent);
 }
 
 button .spin {
@@ -520,6 +559,7 @@ input[type='text']:focus {
   font: var(--font-h3);
   color: var(--color-text);
   font-variant-numeric: tabular-nums;
+  animation: scaleIn var(--duration-base) var(--ease-out);
 }
 
 .result-item .label {
@@ -685,6 +725,16 @@ input[type='text']:focus {
   }
 }
 
+@keyframes pulseGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 55%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 0%, transparent);
+  }
+}
+
 /* ============================================================
    Header actions / language switch
    ============================================================ */
@@ -752,6 +802,10 @@ input[type='text']:focus {
 
 .tab-button:active {
   transform: scale(0.97);
+}
+
+.tab-content {
+  animation: fadeIn var(--duration-base) var(--ease-out);
 }
 
 /* ============================================================

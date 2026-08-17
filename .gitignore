@@ -9,4 +9,4 @@ frontend/public/zk/
 .DS_Store
 
 *.log
-contracts/managed/
+

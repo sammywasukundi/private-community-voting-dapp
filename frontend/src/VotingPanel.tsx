@@ -339,21 +339,21 @@ const VotingPanel: React.FC<Props> = ({ providers, requestedAddress }) => {
             {results ? (
               <>
                 <div className="result-item">
-                  <div className="value">
+                  <div className="value" key={`status-${results.status}`}>
                     {results.status === PollStatus.CLOSED ? t('poll.statusClosed') : t('poll.statusOpen')}
                   </div>
                   <div className="label">{t('poll.status')}</div>
                 </div>
                 <div className="result-item">
-                  <div className="value">{results.total.toString()}</div>
+                  <div className="value" key={`total-${results.total}`}>{results.total.toString()}</div>
                   <div className="label">{t('poll.total')}</div>
                 </div>
                 <div className="result-item">
-                  <div className="value">{results.yes.toString()}</div>
+                  <div className="value" key={`yes-${results.yes}`}>{results.yes.toString()}</div>
                   <div className="label">{t('poll.yes')}</div>
                 </div>
                 <div className="result-item">
-                  <div className="value">{results.no.toString()}</div>
+                  <div className="value" key={`no-${results.no}`}>{results.no.toString()}</div>
                   <div className="label">{t('poll.no')}</div>
                 </div>
               </>

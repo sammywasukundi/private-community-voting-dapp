@@ -4,7 +4,7 @@ A privacy-preserving voting application built on the **Midnight Network** using 
 
 This project demonstrates how Zero-Knowledge technology can be used to build a secure community voting system where every member can vote privately while keeping the final result publicly verifiable.
 
-**Live demo:** `TODO — add the deployed Vercel/Netlify URL here once available`
+**Live demo:** [`[TODO — add the deployed Vercel/Netlify URL here once available](https://private-community-voting-dapp-v11.vercel.app/)`](https://private-community-voting-dapp-v11.vercel.app/)
 **Demo video:** https://youtu.be/YlRGxseZsG8
 
 ---

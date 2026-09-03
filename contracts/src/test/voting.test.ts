@@ -63,6 +63,12 @@ describe("Voting smart contract", () => {
     expect(() => sim.vote(true)).toThrow("not open");
   });
 
+  it("refuses to close a poll that is already closed", () => {
+    const sim = new VotingSimulator();
+    sim.closePoll();
+    expect(() => sim.closePoll()).toThrow("not open");
+  });
+
   it("reveals aggregated results only after closing", () => {
     const sim = new VotingSimulator();
     sim.vote(true);
@@ -88,4 +94,3 @@ describe("Voting smart contract", () => {
     expect(sim.getPrivateState()).toEqual(initialPrivate);
   });
 });
-

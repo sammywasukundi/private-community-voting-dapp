@@ -1,23 +1,28 @@
-import React, { useState } from 'react';
-import type { ConnectedAPI, InitialAPI } from '@midnight-ntwrk/dapp-connector-api';
-import type { MidnightProviders } from '@midnight-ntwrk/midnight-js-types';
-import { setNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
-import { Moon, Sun, Home, History, Languages } from 'lucide-react';
-import WalletCard from './WalletCard';
-import VotingPanel from './VotingPanel';
-import HistoryPanel from './HistoryPanel';
-import { listWallets } from './selectWallet';
-import { BrowserWalletProvider } from './lib/browserWalletProvider';
-import { buildBrowserProviders } from './lib/providers';
-import { useTheme } from './theme';
-import { useToast } from './Toast';
-import { useI18n, type Lang } from './i18n';
+import React, { useState } from "react";
+import type {
+  ConnectedAPI,
+  InitialAPI,
+} from "@midnight-ntwrk/dapp-connector-api";
+import type { MidnightProviders } from "@midnight-ntwrk/midnight-js-types";
+import { setNetworkId } from "@midnight-ntwrk/midnight-js-network-id";
+import { Moon, Sun, Home, History, Languages, HelpCircle } from "lucide-react";
+import WalletCard from "./WalletCard";
+import VotingPanel from "./VotingPanel";
+import HistoryPanel from "./HistoryPanel";
+import HowItWorksPanel from "./HowItWorksPanel";
+import { listWallets } from "./selectWallet";
+import { BrowserWalletProvider } from "./lib/browserWalletProvider";
+import { buildBrowserProviders } from "./lib/providers";
+import { useTheme } from "./theme";
+import { useToast } from "./Toast";
+import { useI18n, type Lang } from "./i18n";
 
 // 'undeployed' for a local devnet, 'preview' or 'preprod' for the public
 // test networks — must match what your wallet extension is connected to.
-const NETWORK_ID = (import.meta.env.VITE_MIDNIGHT_NETWORK as string | undefined) ?? 'preview';
+const NETWORK_ID =
+  (import.meta.env.VITE_MIDNIGHT_NETWORK as string | undefined) ?? "preview";
 
-type Tab = 'home' | 'history';
+type Tab = "home" | "history" | "howItWorks";
 
 const App: React.FC = () => {
   const [theme, toggleTheme] = useTheme();
@@ -31,7 +36,7 @@ const App: React.FC = () => {
   const [networkId, setNetworkIdState] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [providers, setProviders] = useState<MidnightProviders | null>(null);
-  const [tab, setTab] = useState<Tab>('home');
+  const [tab, setTab] = useState<Tab>("home");
   const [requestedAddress, setRequestedAddress] = useState<string | null>(null);
   const [connectedApi, setConnectedApi] = useState<ConnectedAPI | null>(null);
   const [nightBalance, setNightBalance] = useState<bigint | null>(null);
@@ -45,7 +50,7 @@ const App: React.FC = () => {
       setNightBalance(total);
     } catch (e) {
       // Balance display is a nice-to-have — never block the voting flow on it.
-      console.warn('Could not fetch wallet balance', e);
+      console.warn("Could not fetch wallet balance", e);
     } finally {
       setIsRefreshingBalance(false);
     }
@@ -58,7 +63,7 @@ const App: React.FC = () => {
       const available = listWallets();
       setWallets(available);
       if (available.length === 0) {
-        throw new Error(t('error.walletMissing'));
+        throw new Error(t("error.walletMissing"));
       }
       // With a single wallet installed, connect directly. With several,
       // the spec expects the DApp to let the user choose — extend this
@@ -68,8 +73,8 @@ const App: React.FC = () => {
       const connected: ConnectedAPI = await initial.connect(NETWORK_ID);
       const { unshieldedAddress } = await connected.getUnshieldedAddress();
       const status = await connected.getConnectionStatus();
-      if (status.status !== 'connected') {
-        throw new Error(t('error.walletConnectFailed'));
+      if (status.status !== "connected") {
+        throw new Error(t("error.walletConnectFailed"));
       }
 
       const config = await connected.getConfiguration();
@@ -81,10 +86,10 @@ const App: React.FC = () => {
       // connector spec).
       try {
         await connected.hintUsage([
-          'getUnshieldedBalances',
-          'balanceUnsealedTransaction',
-          'submitTransaction',
-          'getConnectionStatus',
+          "getUnshieldedBalances",
+          "balanceUnsealedTransaction",
+          "submitTransaction",
+          "getConnectionStatus",
         ]);
       } catch {
         // optional — some wallets may not implement hinting yet
@@ -102,13 +107,13 @@ const App: React.FC = () => {
       setWalletAddress(unshieldedAddress);
       setNetworkIdState(String(config.networkId));
       setIsConnected(true);
-      push('success', `Wallet ${initial.name} connecté`);
+      push("success", `Wallet ${initial.name} connecté`);
       refreshBalance(connected);
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
       setError(message);
       setIsConnected(false);
-      push('error', message);
+      push("error", message);
     } finally {
       setIsConnecting(false);
     }
@@ -126,17 +131,18 @@ const App: React.FC = () => {
 
   const openInPoll = (address: string) => {
     setRequestedAddress(address);
-    setTab('home');
+    setTab("home");
   };
 
-  const toggleLang = () => setLang(lang === 'fr' ? ('en' as Lang) : ('fr' as Lang));
+  const toggleLang = () =>
+    setLang(lang === "fr" ? ("en" as Lang) : ("fr" as Lang));
 
   return (
     <div className="app">
       <div className="app-header">
         <div>
           <h1>PrivateVote</h1>
-          <p className="subtitle">{t('app.subtitle')}</p>
+          <p className="subtitle">{t("app.subtitle")}</p>
         </div>
         <div className="header-actions">
           <button
@@ -151,10 +157,14 @@ const App: React.FC = () => {
           <button
             className="theme-toggle"
             onClick={toggleTheme}
-            aria-label={theme === 'dark' ? 'Passer au thème clair' : 'Passer au thème sombre'}
-            title={theme === 'dark' ? 'Thème clair' : 'Thème sombre'}
+            aria-label={
+              theme === "dark"
+                ? "Passer au thème clair"
+                : "Passer au thème sombre"
+            }
+            title={theme === "dark" ? "Thème clair" : "Thème sombre"}
           >
-            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
           </button>
         </div>
       </div>
@@ -162,46 +172,62 @@ const App: React.FC = () => {
       <nav className="tab-nav" role="tablist" aria-label="Navigation">
         <button
           role="tab"
-          aria-selected={tab === 'home'}
-          className={`tab-button ${tab === 'home' ? 'active' : ''}`}
-          onClick={() => setTab('home')}
+          aria-selected={tab === "home"}
+          className={`tab-button ${tab === "home" ? "active" : ""}`}
+          onClick={() => setTab("home")}
         >
           <Home size={16} />
-          {t('nav.home')}
+          {t("nav.home")}
         </button>
         <button
           role="tab"
-          aria-selected={tab === 'history'}
-          className={`tab-button ${tab === 'history' ? 'active' : ''}`}
-          onClick={() => setTab('history')}
+          aria-selected={tab === "history"}
+          className={`tab-button ${tab === "history" ? "active" : ""}`}
+          onClick={() => setTab("history")}
         >
           <History size={16} />
-          {t('nav.history')}
+          {t("nav.history")}
+        </button>
+        <button
+          role="tab"
+          aria-selected={tab === "howItWorks"}
+          className={`tab-button ${tab === "howItWorks" ? "active" : ""}`}
+          onClick={() => setTab("howItWorks")}
+        >
+          <HelpCircle size={16} />
+          {t("nav.howItWorks")}
         </button>
       </nav>
 
       <div className="tab-content" key={tab}>
-      {tab === 'home' ? (
-        <>
-          <WalletCard
-            isConnected={isConnected}
-            isConnecting={isConnecting}
-            walletName={walletName}
-            walletAddress={walletAddress}
-            networkId={networkId}
-            error={error}
-            onConnect={handleConnect}
-            onDisconnect={handleDisconnect}
-            nightBalance={nightBalance}
-            isRefreshingBalance={isRefreshingBalance}
-            onRefreshBalance={() => connectedApi && refreshBalance(connectedApi)}
-          />
+        {tab === "home" ? (
+          <>
+            <WalletCard
+              isConnected={isConnected}
+              isConnecting={isConnecting}
+              walletName={walletName}
+              walletAddress={walletAddress}
+              networkId={networkId}
+              error={error}
+              onConnect={handleConnect}
+              onDisconnect={handleDisconnect}
+              nightBalance={nightBalance}
+              isRefreshingBalance={isRefreshingBalance}
+              onRefreshBalance={() =>
+                connectedApi && refreshBalance(connectedApi)
+              }
+            />
 
-          <VotingPanel providers={providers} requestedAddress={requestedAddress} />
-        </>
-      ) : (
-        <HistoryPanel providers={providers} onOpenInPoll={openInPoll} />
-      )}
+            <VotingPanel
+              providers={providers}
+              requestedAddress={requestedAddress}
+            />
+          </>
+        ) : tab === "history" ? (
+          <HistoryPanel providers={providers} onOpenInPoll={openInPoll} />
+        ) : (
+          <HowItWorksPanel />
+        )}
       </div>
     </div>
   );

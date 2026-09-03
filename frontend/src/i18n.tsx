@@ -83,6 +83,11 @@ const dict = {
     "error.contractNotFound":
       "Aucun contrat de vote trouvé à cette adresse. Vérifie l'adresse et réessaie.",
     "wallet.connectShort": "Connecter",
+    "nav.howItWorks": "Comment ça marche",
+    "howItWorks.title": "Comment ça marche",
+    // ... les autres clés howItWorks.* en FR ...
+    "howItWorks.caveat":
+      "Le contrat protège l'identité et le choix de vote sur la chaîne, mais ne masque pas les métadonnées réseau : l'adresse IP de ta connexion ou la provenance des fonds de ton wallet ne sont pas couvertes par cette garantie.",
   },
   en: {
     "app.subtitle": "Private community voting on Midnight",
@@ -155,6 +160,10 @@ const dict = {
     "error.contractNotFound":
       "No voting contract found at this address. Check the address and try again.",
     "wallet.connectShort": "Connect",
+    "nav.howItWorks": "How it works",
+    // ... les autres clés howItWorks.* en EN ...
+    "howItWorks.caveat":
+      "The contract protects your identity and vote choice on-chain, but it does not hide network-level metadata: your connection's IP address or where your wallet's funds came from are not covered by this guarantee.",
   },
 } as const;
 

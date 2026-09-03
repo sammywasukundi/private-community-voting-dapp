@@ -1,10 +1,11 @@
 # Midnight Private Community Voting DApp
 
+[![CI](https://github.com/sammywasukundi/private-community-voting-dapp/actions/workflows/ci.yml/badge.svg)](https://github.com/sammywasukundi/private-community-voting-dapp/actions/workflows/ci.yml)
 A privacy-preserving voting application built on the **Midnight Network** using the **Compact** smart contract language.
 
 This project demonstrates how Zero-Knowledge technology can be used to build a secure community voting system where every member can vote privately while keeping the final result publicly verifiable.
 
-**Live demo:** [`[TODO — add the deployed Vercel/Netlify URL here once available](https://private-community-voting-dapp-v11.vercel.app/)`](https://private-community-voting-dapp-v11.vercel.app/)
+**Live demo:** https://private-community-voting-dapp-v11.vercel.app/
 **Demo video:** https://youtu.be/YlRGxseZsG8
 
 ---
@@ -37,6 +38,7 @@ Most on-chain governance today forces a tradeoff between transparency and privac
 - **Deploy or join** — start a brand-new poll from the UI, or join an existing one by pasting its contract address
 - **Privacy-preserving poll history** — a dedicated tab lists every poll this browser deployed or joined, showing only aggregate results (never a voter identity — see Privacy Statement below)
 - **French / English UI** — a language switcher in the header, translating the whole interface
+- **"How it works" guide** — a dedicated, bilingual tab walking through the voting flow and explicitly separating what the network sees from what it never sees
 - **Full test coverage** — unit tests via a local simulator, plus end-to-end deployment tests against local, preview, and preprod networks
 
 ---
@@ -108,8 +110,9 @@ project/
 │   └── test/
 │
 ├── screenshots/
-│   ├── compile.png
-│   └── deployment.png
+│   ├── yarncompile.jpg
+│   ├── deploy.jpg
+│   └── wallet-connected.jpg
 │
 ├── package.json
 ├── compose.yml
@@ -257,6 +260,8 @@ The deployment test performs the following operations:
 
 All tests completed successfully on the Midnight Preview Network.
 
+![All tests passing](screenshots/tests-passed.jpg)
+
 ---
 
 # Mainnet / Testnet Contract Details
@@ -268,9 +273,6 @@ All tests completed successfully on the Midnight Preview Network.
 - **Deployment Date:** `to be continued in next level`
 - **Block Explorer:** [Midnight Preview Block Explorer](https://docs.midnight.network/relnotes/network) — search the contract address above
 
-**Screenshot:**
-
-![Deployed contract on the block explorer](screenshots/contract-explorer.png)
 
 ---
 
@@ -327,6 +329,8 @@ Open `http://localhost:5173`, click **Connect Wallet** (requires a Midnight
 wallet extension installed and unlocked, connected to the same network as
 `VITE_MIDNIGHT_NETWORK`, default `preview`), then deploy a new poll or paste
 an existing contract address to join one.
+
+![Wallet connected and a poll loaded](screenshots/wallet-connected.jpg)
 
 ### Structure
 

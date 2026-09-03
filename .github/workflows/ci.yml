@@ -40,6 +40,11 @@ jobs:
     needs: compile-and-test
     env:
       MIDNIGHT_PREVIEW_MNEMONIC: ${{ secrets.MIDNIGHT_PREVIEW_MNEMONIC }}
+    services:
+      proof-server:
+        image: midnightntwrk/proof-server:8.1.0
+        ports:
+          - 6300:6300
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -49,6 +54,18 @@ jobs:
         with:
           node-version: '22'
           cache: 'yarn'
+
+      - name: Wait for proof server
+        run: |
+          for i in $(seq 1 30); do
+            if (echo > /dev/tcp/127.0.0.1/6300) 2>/dev/null; then
+              echo "Proof server is up"
+              exit 0
+            fi
+            echo "Waiting for proof server... ($i)"
+            sleep 2
+          done
+          echo "Proof server did not start in time" && exit 1
 
       - name: Setup Compact compiler
         uses: midnightntwrk/setup-compact-action@v1

@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  compile-and-test:
+    name: Compile contract & run unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'yarn'
+
+      - name: Setup Compact compiler
+        uses: midnightntwrk/setup-compact-action@v1
+        with:
+          compact-version: '0.26.0'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Compile the Compact contract
+        run: yarn compile
+
+      - name: Run unit tests (contract simulator)
+        run: yarn test:sim
+
+  preview-network-test:
+    name: Run deployment tests against Preview network
+    runs-on: ubuntu-latest
+    needs: compile-and-test
+    # Only runs when the Preview network secret is configured on the repo,
+    # so forks / PRs from contributors without access still get a green
+    # compile-and-test job without this one failing on a missing secret.
+    if: ${{ secrets.MIDNIGHT_PREVIEW_MNEMONIC != '' }}
+    env:
+      MIDNIGHT_PREVIEW_MNEMONIC: ${{ secrets.MIDNIGHT_PREVIEW_MNEMONIC }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'yarn'
+
+      - name: Setup Compact compiler
+        uses: midnightntwrk/setup-compact-action@v1
+        with:
+          compact-version: '0.26.0'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Compile the Compact contract
+        run: yarn compile
+
+      - name: Run Preview network deployment tests
+        run: yarn test:preview

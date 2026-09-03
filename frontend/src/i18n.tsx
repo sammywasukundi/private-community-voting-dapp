@@ -85,7 +85,33 @@ const dict = {
     "wallet.connectShort": "Connecter",
     "nav.howItWorks": "Comment ça marche",
     "howItWorks.title": "Comment ça marche",
-    // ... les autres clés howItWorks.* en FR ...
+    "howItWorks.intro":
+      "PrivateVote permet à n'importe quelle communauté de voter de façon vérifiable, sans jamais révéler qui a voté quoi. Voici le déroulé, étape par étape.",
+    "howItWorks.step1":
+      "Tu connectes ton wallet Midnight (ex. Lace — édition Midnight).",
+    "howItWorks.step2":
+      "Tu crées un nouveau sondage, ou tu rejoins un sondage existant en collant son adresse de contrat.",
+    "howItWorks.step3":
+      "Ton identité sert localement, dans ton navigateur, à produire une preuve cryptographique d'éligibilité — elle ne quitte jamais ton appareil sous sa forme brute.",
+    "howItWorks.step4":
+      "Cette preuve permet de voter sans jamais envoyer ton identité sur la chaîne : seul un engagement (hash) non réversible est publié.",
+    "howItWorks.step5":
+      "Le contrat empêche un second vote en vérifiant que cet engagement n'a pas déjà été utilisé — impossible de voter deux fois avec la même identité.",
+    "howItWorks.step6":
+      "Seuls les totaux publics — Oui, Non, Total — restent consultables par tout le monde, jamais le détail d'un vote individuel.",
+    "howItWorks.step7":
+      "Une fois le sondage fermé, plus aucun vote n'est accepté et le résultat final reste vérifiable par n'importe qui.",
+    "howItWorks.networkSeesTitle": "Ce que le réseau voit",
+    "howItWorks.sees1": "Que le sondage existe, et s'il est ouvert ou fermé",
+    "howItWorks.sees2":
+      "Les totaux agrégés : nombre de votes Oui, Non et Total",
+    "howItWorks.sees3":
+      "Un engagement cryptographique (hash) prouvant qu'un vote légitime a eu lieu — jamais l'identité ni le choix qui s'y rattachent",
+    "howItWorks.networkDoesNotSeeTitle": "Ce que le réseau ne voit pas",
+    "howItWorks.notSees1":
+      "Qui a voté — aucune identité de votant n'est jamais publiée",
+    "howItWorks.notSees2":
+      "Ce que chaque personne a voté — seul le total agrégé est public",
     "howItWorks.caveat":
       "Le contrat protège l'identité et le choix de vote sur la chaîne, mais ne masque pas les métadonnées réseau : l'adresse IP de ta connexion ou la provenance des fonds de ton wallet ne sont pas couvertes par cette garantie.",
   },
@@ -161,7 +187,33 @@ const dict = {
       "No voting contract found at this address. Check the address and try again.",
     "wallet.connectShort": "Connect",
     "nav.howItWorks": "How it works",
-    // ... les autres clés howItWorks.* en EN ...
+    "howItWorks.title": "How it works",
+    "howItWorks.intro":
+      "PrivateVote lets any community run a verifiable vote without ever revealing who voted for what. Here's the flow, step by step.",
+    "howItWorks.step1":
+      "You connect your Midnight wallet (e.g. Lace — Midnight edition).",
+    "howItWorks.step2":
+      "You create a new poll, or join an existing one by pasting its contract address.",
+    "howItWorks.step3":
+      "Your identity is used locally, in your browser, to produce a cryptographic proof of eligibility — it never leaves your device in raw form.",
+    "howItWorks.step4":
+      "That proof lets you vote without ever sending your identity on-chain: only a non-reversible commitment (hash) is published.",
+    "howItWorks.step5":
+      "The contract prevents a second vote by checking that this commitment hasn't already been used — voting twice with the same identity is impossible.",
+    "howItWorks.step6":
+      "Only the public totals — Yes, No, Total — remain readable by anyone, never an individual vote's detail.",
+    "howItWorks.step7":
+      "Once the poll is closed, no further votes are accepted and the final result stays verifiable by anyone.",
+    "howItWorks.networkSeesTitle": "What the network sees",
+    "howItWorks.sees1":
+      "That the poll exists, and whether it is open or closed",
+    "howItWorks.sees2": "The aggregate totals: Yes votes, No votes, and Total",
+    "howItWorks.sees3":
+      "A cryptographic commitment (hash) proving a legitimate vote happened — never the identity or choice behind it",
+    "howItWorks.networkDoesNotSeeTitle": "What the network does not see",
+    "howItWorks.notSees1": "Who voted — no voter identity is ever published",
+    "howItWorks.notSees2":
+      "What each person voted — only the aggregate total is public",
     "howItWorks.caveat":
       "The contract protects your identity and vote choice on-chain, but it does not hide network-level metadata: your connection's IP address or where your wallet's funds came from are not covered by this guarantee.",
   },

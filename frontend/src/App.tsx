@@ -138,96 +138,113 @@ const App: React.FC = () => {
     setLang(lang === "fr" ? ("en" as Lang) : ("fr" as Lang));
 
   return (
-    <div className="app">
-      <div className="app-header">
-        <div>
-          <h1>PrivateVote</h1>
-          <p className="subtitle">{t("app.subtitle")}</p>
-        </div>
-        <div className="header-actions">
-          <button
-            className="theme-toggle"
-            onClick={toggleLang}
-            aria-label="Change language / Changer de langue"
-            title="FR / EN"
-          >
-            <Languages size={16} />
-            <span className="lang-label">{lang.toUpperCase()}</span>
-          </button>
-          <button
-            className="theme-toggle"
-            onClick={toggleTheme}
-            aria-label={
-              theme === "dark"
-                ? "Passer au thème clair"
-                : "Passer au thème sombre"
-            }
-            title={theme === "dark" ? "Thème clair" : "Thème sombre"}
-          >
-            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
-        </div>
+    <div className="app-shell">
+      <div className="aurora-bg" aria-hidden="true">
+        <span className="aurora-blob aurora-blob-1" />
+        <span className="aurora-blob aurora-blob-2" />
+        <span className="aurora-blob aurora-blob-3" />
       </div>
 
-      <nav className="tab-nav" role="tablist" aria-label="Navigation">
-        <button
-          role="tab"
-          aria-selected={tab === "home"}
-          className={`tab-button ${tab === "home" ? "active" : ""}`}
-          onClick={() => setTab("home")}
-        >
-          <Home size={16} />
-          {t("nav.home")}
-        </button>
-        <button
-          role="tab"
-          aria-selected={tab === "history"}
-          className={`tab-button ${tab === "history" ? "active" : ""}`}
-          onClick={() => setTab("history")}
-        >
-          <History size={16} />
-          {t("nav.history")}
-        </button>
-        <button
-          role="tab"
-          aria-selected={tab === "howItWorks"}
-          className={`tab-button ${tab === "howItWorks" ? "active" : ""}`}
-          onClick={() => setTab("howItWorks")}
-        >
-          <HelpCircle size={16} />
-          {t("nav.howItWorks")}
-        </button>
-      </nav>
-
-      <div className="tab-content" key={tab}>
-        {tab === "home" ? (
-          <>
-            <WalletCard
-              isConnected={isConnected}
-              isConnecting={isConnecting}
-              walletName={walletName}
-              walletAddress={walletAddress}
-              networkId={networkId}
-              error={error}
-              onConnect={handleConnect}
-              onDisconnect={handleDisconnect}
-              nightBalance={nightBalance}
-              isRefreshingBalance={isRefreshingBalance}
-              onRefreshBalance={() =>
-                connectedApi && refreshBalance(connectedApi)
+      <header className="site-nav">
+        <div className="site-nav-inner">
+          <div className="brand">
+            <img
+              src="/privatevote-logo.png"
+              alt="PrivateVote"
+              className="brand-logo"
+            />
+            <div className="brand-text">
+              <span className="brand-name">PrivateVote</span>
+              <span className="brand-tagline">{t("app.subtitle")}</span>
+            </div>
+          </div>
+          <div className="header-actions">
+            <button
+              className="theme-toggle"
+              onClick={toggleLang}
+              aria-label="Change language / Changer de langue"
+              title="FR / EN"
+            >
+              <Languages size={16} />
+              <span className="lang-label">{lang.toUpperCase()}</span>
+            </button>
+            <button
+              className="theme-toggle"
+              onClick={toggleTheme}
+              aria-label={
+                theme === "dark"
+                  ? "Passer au thème clair"
+                  : "Passer au thème sombre"
               }
-            />
+              title={theme === "dark" ? "Thème clair" : "Thème sombre"}
+            >
+              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+          </div>
+        </div>
+      </header>
 
-            <VotingPanel
-              providers={providers}
-              requestedAddress={requestedAddress}
-            />
-          </>
-        ) : tab === "history" ? (
-          <HistoryPanel providers={providers} onOpenInPoll={openInPoll} />
-        ) : (
-          <HowItWorksPanel />
-        )}
+      <div className="app">
+        <nav className="tab-nav" role="tablist" aria-label="Navigation">
+          <button
+            role="tab"
+            aria-selected={tab === "home"}
+            className={`tab-button ${tab === "home" ? "active" : ""}`}
+            onClick={() => setTab("home")}
+          >
+            <Home size={16} />
+            {t("nav.home")}
+          </button>
+          <button
+            role="tab"
+            aria-selected={tab === "history"}
+            className={`tab-button ${tab === "history" ? "active" : ""}`}
+            onClick={() => setTab("history")}
+          >
+            <History size={16} />
+            {t("nav.history")}
+          </button>
+          <button
+            role="tab"
+            aria-selected={tab === "howItWorks"}
+            className={`tab-button ${tab === "howItWorks" ? "active" : ""}`}
+            onClick={() => setTab("howItWorks")}
+          >
+            <HelpCircle size={16} />
+            {t("nav.howItWorks")}
+          </button>
+        </nav>
+
+        <div className="tab-content" key={tab}>
+          {tab === "home" ? (
+            <>
+              <WalletCard
+                isConnected={isConnected}
+                isConnecting={isConnecting}
+                walletName={walletName}
+                walletAddress={walletAddress}
+                networkId={networkId}
+                error={error}
+                onConnect={handleConnect}
+                onDisconnect={handleDisconnect}
+                nightBalance={nightBalance}
+                isRefreshingBalance={isRefreshingBalance}
+                onRefreshBalance={() =>
+                  connectedApi && refreshBalance(connectedApi)
+                }
+              />
+
+              <VotingPanel
+                providers={providers}
+                requestedAddress={requestedAddress}
+              />
+            </>
+          ) : tab === "history" ? (
+            <HistoryPanel providers={providers} onOpenInPoll={openInPoll} />
+          ) : (
+            <HowItWorksPanel />
+          )}
+        </div>
       </div>
     </div>
   );

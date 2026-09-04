@@ -1,15 +1,26 @@
-import React from 'react';
-import { HelpCircle, Eye, EyeOff } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
+import {
+  HelpCircle,
+  Wallet,
+  ListPlus,
+  Fingerprint,
+  Lock,
+  ShieldCheck,
+  BarChart3,
+  CheckCircle2,
+  Eye,
+  EyeOff,
+} from 'lucide-react';
 import { useI18n, type TKey } from './i18n';
 
-const STEP_KEYS: TKey[] = [
-  'howItWorks.step1',
-  'howItWorks.step2',
-  'howItWorks.step3',
-  'howItWorks.step4',
-  'howItWorks.step5',
-  'howItWorks.step6',
-  'howItWorks.step7',
+const STEPS: { key: TKey; Icon: typeof Wallet }[] = [
+  { key: 'howItWorks.step1', Icon: Wallet },
+  { key: 'howItWorks.step2', Icon: ListPlus },
+  { key: 'howItWorks.step3', Icon: Fingerprint },
+  { key: 'howItWorks.step4', Icon: Lock },
+  { key: 'howItWorks.step5', Icon: ShieldCheck },
+  { key: 'howItWorks.step6', Icon: BarChart3 },
+  { key: 'howItWorks.step7', Icon: CheckCircle2 },
 ];
 
 const NETWORK_SEES_KEYS: TKey[] = [
@@ -23,50 +34,95 @@ const NETWORK_DOES_NOT_SEE_KEYS: TKey[] = [
   'howItWorks.notSees2',
 ];
 
+/**
+ * Reveals every element carrying `data-reveal` inside `root` once it enters
+ * the viewport, by toggling the `is-visible` class. One shared observer,
+ * disconnected on unmount — cheap even with many steps on the page.
+ */
+function useScrollReveal(root: React.RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    const container = root.current;
+    if (!container) return;
+
+    const targets = Array.from(container.querySelectorAll<HTMLElement>('[data-reveal]'));
+
+    if (typeof IntersectionObserver === 'undefined') {
+      targets.forEach((el) => el.classList.add('is-visible'));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        }
+      },
+      { threshold: 0.25, rootMargin: '0px 0px -10% 0px' },
+    );
+
+    targets.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [root]);
+}
+
 const HowItWorksPanel: React.FC = () => {
   const { t } = useI18n();
+  const rootRef = useRef<HTMLDivElement>(null);
+  useScrollReveal(rootRef);
 
   return (
-    <div className="card">
-      <h2>
-        <HelpCircle size={18} />
-        {t('howItWorks.title')}
-      </h2>
-      <p className="empty-hint">{t('howItWorks.intro')}</p>
+    <div ref={rootRef}>
+      <div className="hiw-hero">
+        <span className="hiw-hero-icon">
+          <HelpCircle size={26} />
+        </span>
+        <h2>{t('howItWorks.title')}</h2>
+        <p>{t('howItWorks.intro')}</p>
+      </div>
 
-      <ol style={{ margin: '0 0 var(--space-4)', paddingLeft: '1.25em', lineHeight: 1.6 }}>
-        {STEP_KEYS.map((key) => (
-          <li key={key} style={{ marginBottom: 'var(--space-2)' }}>
-            {t(key)}
+      <ol className="hiw-timeline">
+        {STEPS.map(({ key, Icon }, index) => (
+          <li
+            key={key}
+            className="hiw-step"
+            data-reveal
+            style={{ transitionDelay: `${Math.min(index, 5) * 70}ms` }}
+          >
+            <span className="hiw-step-marker">
+              <Icon size={20} />
+            </span>
+            <div className="hiw-step-body">
+              <span className="hiw-step-index">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <p>{t(key)}</p>
+            </div>
           </li>
         ))}
       </ol>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: 'var(--space-3)',
-        }}
-      >
-        <div className="result-item" style={{ textAlign: 'left', padding: 'var(--space-3)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
+      <div className="hiw-visibility" data-reveal>
+        <div className="hiw-visibility-card sees">
+          <header>
             <Eye size={16} />
-            <strong>{t('howItWorks.networkSeesTitle')}</strong>
-          </div>
-          <ul style={{ margin: 0, paddingLeft: '1.1em', lineHeight: 1.6 }}>
+            {t('howItWorks.networkSeesTitle')}
+          </header>
+          <ul>
             {NETWORK_SEES_KEYS.map((key) => (
               <li key={key}>{t(key)}</li>
             ))}
           </ul>
         </div>
 
-        <div className="result-item" style={{ textAlign: 'left', padding: 'var(--space-3)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
+        <div className="hiw-visibility-card hides">
+          <header>
             <EyeOff size={16} />
-            <strong>{t('howItWorks.networkDoesNotSeeTitle')}</strong>
-          </div>
-          <ul style={{ margin: 0, paddingLeft: '1.1em', lineHeight: 1.6 }}>
+            {t('howItWorks.networkDoesNotSeeTitle')}
+          </header>
+          <ul>
             {NETWORK_DOES_NOT_SEE_KEYS.map((key) => (
               <li key={key}>{t(key)}</li>
             ))}
@@ -74,9 +130,7 @@ const HowItWorksPanel: React.FC = () => {
         </div>
       </div>
 
-      <p className="empty-hint" style={{ marginTop: 'var(--space-4)' }}>
-        {t('howItWorks.caveat')}
-      </p>
+      <p className="hiw-caveat">{t('howItWorks.caveat')}</p>
     </div>
   );
 };

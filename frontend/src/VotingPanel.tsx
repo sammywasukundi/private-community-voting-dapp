@@ -459,7 +459,9 @@ const VotingPanel: React.FC<Props> = ({ providers, requestedAddress }) => {
             <button
               className="yes"
               onClick={() => handleVote(true)}
-              disabled={busy || hasVoted}
+              disabled={
+                busy || hasVoted || results?.status === PollStatus.CLOSED
+              }
             >
               {action === "vote-yes" ? (
                 <Loader2 size={16} className="spin" />
@@ -471,7 +473,9 @@ const VotingPanel: React.FC<Props> = ({ providers, requestedAddress }) => {
             <button
               className="no"
               onClick={() => handleVote(false)}
-              disabled={busy || hasVoted}
+              disabled={
+                busy || hasVoted || results?.status === PollStatus.CLOSED
+              }
             >
               {action === "vote-no" ? (
                 <Loader2 size={16} className="spin" />
@@ -483,7 +487,7 @@ const VotingPanel: React.FC<Props> = ({ providers, requestedAddress }) => {
             <button
               className="secondary"
               onClick={handleClosePoll}
-              disabled={busy}
+              disabled={busy || results?.status === PollStatus.CLOSED}
             >
               {action === "close" ? (
                 <Loader2 size={16} className="spin" />
